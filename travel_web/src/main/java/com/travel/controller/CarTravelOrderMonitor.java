@@ -12,7 +12,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 
 //配置扫描的包路径
-@SpringBootApplication
+//@SpringBootApplication
 //@SpringBootApplication(scanBasePackages = "com.cartravel.*")
 //@MapperScan("com.cartravel.mapper.*")
 @Controller
