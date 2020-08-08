@@ -16,7 +16,7 @@ class HBaseDataReader(tableName:String,cfcc:String) extends DataReader[Row] /*wi
   def getIterator:Iterator[Result] = {
     hbaseConnection = HbaseTools.getHbaseConn
     val table: Table = hbaseConnection.getTable(TableName.valueOf(tableName.trim))
-    val scan = new Scan()
+    val scan = new Scan() //传入 上下限  防止 oom option 传入  为此下推
     val cfccArr: Array[String] = cfcc.split(",")
     for(eachCfcc <- cfccArr){
       val cfAndcc: Array[String] = eachCfcc.split(":")
