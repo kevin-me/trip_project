@@ -34,7 +34,7 @@ object DefineHBaseSourceReadAndWrite {
       .option("cf.cc", "cf:name,cf:score") // 列名
       .option("STARTROW","") //      val tmpTime = TimeUtils.formatYYYYmmdd(create_time).get   val rowkey = order.id + "_" + tmpTime
       .option("ENDROW","")  //      PageFilter filter1 = new PageFilter(pageSize);  scan.setFilter(filter1);
-      .load()
+      .load()    // 要传pageFilter，将pageFilter序列化成为一个字符串，最后再反序列化 这样就可以了
 
     //问题  rowkey 的设计是 创建时间   无法指定 确定的 STARTROW和  ENDROW 如果 传入 分页  但是还不支持 PageFilter
 

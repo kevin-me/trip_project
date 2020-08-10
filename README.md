@@ -47,5 +47,35 @@
   再通过 （id+"_" + 时间戳）.md5加密 截取12位 拼接上前4位 就得到了最后的16位的rowkey的长度
   主键是自增的 ==》 每次通过 主键.hashCode % numregions 得到的值，也是比较均衡的
 
-(4)简述 sparKSQl如何自定义数据源实现异数据原的sql查询
-
+(4)简述 sparKSQl如何自定义数据源实现异数据源的sql查询
+ //1.创建SparkSession
+ val spark = SparkSession.builder().master("local[2]").getOrCreate()
+ //2.spark.read.format 自定义数据源  查询HBASE的数据 将 HBASE的数据 映射成为一张表
+ val df = spark.read.format("com.travel.programApp.HBaseSource") 
+      .option("hbase.table.name", "spark_hbase_sql")  // 表名
+      .option("schema", "`name` STRING,`score` STRING") //表结构
+      .option("cf.cc", "cf:name,cf:score") // 列名
+      .load() 
+ //3.HBaseSource 继承 DataSourceV2 和 ReadSupport 
+ class HBaseSource extends DataSourceV2 with ReadSupport
+ //4. 实现 createReader 方法 并返回 DataSourceReader 
+ override def createReader(options: DataSourceOptions): DataSourceReader 
+ //5. 自定义 HBaseDataSourceReader 类 继承 DataSourceReader 
+ class HBaseDataSourceReader(tableName: String, schema: String, cfcc: String) extends DataSourceReader 
+ //6.实现 createDataReaderFactories 方法 返回 List[DataReaderFactory]
+ override def createDataReaderFactories(): util.List[DataReaderFactory[Row]] 
+ //7.自定义 HBaseReaderFactory 类 继承 DataReaderFactory 
+ class HBaseReaderFactory(tableName: String, cfcc: String) extends DataReaderFactory[Row]
+ //8.实现 createDataReader 方法 返回 DataReader[Row]
+ override def createDataReader(): DataReader[Row]
+ //9.自定义 HBaseReader 类 继承 DataReader 
+ class HBaseReader(tableName: String, cfcc: String) extends DataReader[Row]
+ //10.实现 getIterator方法 next() 方法 get() 方法 close() 方法
+   A.val data: Iterator[Seq[AnyRef]] = getIterator
+   B.override def next()
+   C.override def get()
+   D.override def close()
+ //11. 将返回的dataframe 映射成一张表
+  df.createOrReplaceTempView("sparkHBaseSQL")
+ //12.执行sql语句
+ val frame: DataFrame = spark.sql("select * from sparkHBaseSQL where score > 60")
