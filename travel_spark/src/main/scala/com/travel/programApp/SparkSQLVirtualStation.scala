@@ -3,6 +3,7 @@ package com.travel.programApp
 import java.util
 
 import com.travel.common.{Constants, District}
+import com.travel.spark.SparkEngine
 import com.travel.utils.{HbaseTools, SparkUtils}
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.hbase.HBaseConfiguration
@@ -19,10 +20,18 @@ import scala.collection.mutable
 object SparkSQLVirtualStation {
 
   def main(args: Array[String]): Unit = {
-    val conf = new SparkConf
-    conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-    conf.setMaster("local[1]").setAppName("sparkHbase")
-    val sparkSession: SparkSession = SparkSession.builder().config(conf).getOrCreate()
+//    val conf = new SparkConf
+//    conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+//    conf.setMaster("local[1]").setAppName("sparkHbase")
+
+    //获取到了sparkConf
+    val conf :SparkConf = SparkEngine.getSparkConf()
+
+    val sparkSession: SparkSession = SparkSession.builder()
+      .config(conf)
+      .config("spark.extraListeners","com.travel.listener.SparkSessionListener")
+      .getOrCreate()
+
     //设置日志级别，避免出现太多日志信息
     sparkSession.sparkContext.setLogLevel("WARN")
     //hbase配置
